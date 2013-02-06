@@ -1,6 +1,7 @@
 import sublime
 import sublime_plugin
-from urllib import urlopen, urlencode
+import urllib2
+from urllib import urlencode
 
 
 class SendToPastepmCommand(sublime_plugin.TextCommand):
@@ -16,7 +17,9 @@ class SendToPastepmCommand(sublime_plugin.TextCommand):
                 sublime.status_message("Error sending to paste.pm: Nothing selected")
             else:
                 response = "http://paste.pm"
-                response += urlopen("http://paste.pm/post", data=urlencode(payload)).read()
-
-                sublime.set_clipboard(response)
-                sublime.status_message("Paste.pm url copied to clipboard: " + response)
+                try:
+                    response += urllib2.urlopen("http://paste.pm/post", data=urlencode(payload)).read()
+                    sublime.set_clipboard(response)
+                    sublime.status_message("Paste.pm url copied to clipboard: " + response)
+                except urllib2.URLError:
+                    sublime.status_message("Error: Cannot reach http://paste.pm")
